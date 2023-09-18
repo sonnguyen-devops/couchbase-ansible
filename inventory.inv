@@ -1,0 +1,5 @@
+[couchbase-master]
+192.168.56.2
+[couchbase-nodes]
+192.168.56.3
+192.168.56.4

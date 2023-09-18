@@ -1,0 +1,10 @@
+
+---
+- name: configure Couchbase user on your farm
+  hosts:  all
+  tasks:
+    - name: create couchbase user with UID 5000
+      user:
+        name: couchbase
+        uid: 3000
+        state: present

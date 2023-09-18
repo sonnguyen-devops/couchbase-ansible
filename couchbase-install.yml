@@ -1,0 +1,34 @@
+---
+- name: Install and configure 3 node Couchbase cluster
+  hosts: all
+  tasks:
+    - name: Download the appropriate meta package from the package download location
+      get_url:
+        url: http://packages.couchbase.com/releases/couchbase-release/couchbase-release-1.0-1-x86_64.rpm
+        dest: /tmp/couchbase-release-1.0-1-x86_64.rpm
+    - name: install the package source and the Couchbase public keys
+      yum:
+        name: /tmp/couchbase-release-1.0-1-x86_64.rpm
+        state: present
+    - name: Install Couchbase Server package
+      yum:
+        name: couchbase-server
+        state: present
+    - name: make sure Couchbase Server started
+      service:
+        name: couchbase-server
+        state: started
+    - name: Initialize the cluster and add the nodes to the cluster
+      hosts: couchbase-master
+      tasks:
+        - name: set-up Couchbase central node - init Couchbase cluster
+          shell: /opt/couchbase/bin/couchbase-cli cluster-init -c 127.0.0.1 --cluster-username={{ user }} --cluster-password={{ password }} --cluster-port=8091 --cluster-ramsize={{ ram }}
+        - name: template use case example - use Jinja2 templating
+          template: src=template-add-node.j2 dest=/tmp/add_nodes.sh mode=750
+        - name: start config script - add remaining nodes to the cluster
+          shell:  /tmp/add_nodes.sh
+        - name: rebalance Couchbase cluster
+          shell: /opt/couchbase/bin/couchbase-cli rebalance -c 127.0.0.1:8091 -u {{ user }}  -p {{ password }}
+        - name: create bucket Ansible with 2 replicas
+          shell: /opt/couchbase/bin/couchbase-cli bucket-create -c 127.0.0.1:8091  --bucket={{ bucket }} --bucket-type=couchbase --bucket-port=11222 --bucket-ramsize={{ bucket_ram }}  --bucket-replica={{ replicas }} -u {{ user }} -p {{ password }}
+    #Couchbase cluster is ready in a few seconds – this is how fast Ansible can create it!

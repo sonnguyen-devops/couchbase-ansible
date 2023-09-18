@@ -1,0 +1,6 @@
+user: admin
+password: "{{ vault_password }}"
+ram: 512
+replicas: 2
+bucket_ram: 256
+bucket: Ansible
