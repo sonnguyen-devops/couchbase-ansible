@@ -1,5 +1,5 @@
 [couchbase-master]
-192.168.56.2
-[couchbase-nodes]
 192.168.56.3
+[couchbase-nodes]
 192.168.56.4
+192.168.56.5
